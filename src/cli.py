@@ -1,5 +1,6 @@
-from lightning.pytorch.cli import LightningCLI, LightningArgumentParser
+from lightning.pytorch.cli import LightningCLI
 from logging import getLogger
+
 
 logger = getLogger(__name__)
 logger.setLevel('DEBUG')

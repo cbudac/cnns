@@ -6,6 +6,7 @@ from torchvision.datasets import FashionMNIST, Imagenette
 from torchvision import transforms
 import lightning as L
 
+
 class BaseDataModule(L.LightningDataModule):
     def __init__(self, data_dir: str = "./", batch_size: int = 32, shuffle: bool=True):
         super().__init__()

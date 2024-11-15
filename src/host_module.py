@@ -7,8 +7,8 @@ from lightning.pytorch.cli import OptimizerCallable, LRSchedulerCallable
 from lightning.pytorch.utilities.types import OptimizerLRScheduler, STEP_OUTPUT
 from torch.nn import functional as F
 
-from densenet.densenet import DenseNet
-from vgg.vgg import VGG
+from cnn_backbones.densenet.densenet import DenseNet
+from cnn_backbones.vgg.vgg import VGG
 
 
 class HostModule(LightningModule, ABC):

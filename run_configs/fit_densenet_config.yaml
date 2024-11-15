@@ -6,7 +6,7 @@ trainer:
   logger:
     class_path: 'lightning.pytorch.loggers.tensorboard.TensorBoardLogger'
     init_args:
-      save_dir: './output_densenet'
+      save_dir: './output/densenet'
 
   callbacks:
     - class_path: ModelCheckpoint

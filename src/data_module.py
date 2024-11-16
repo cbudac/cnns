@@ -21,10 +21,10 @@ class BaseDataModule(L.LightningDataModule):
 
 
     def train_dataloader(self):
-        return DataLoader(self.train, batch_size=self.batch_size, shuffle=self.shuffle)
+        return DataLoader(self.train, batch_size=self.batch_size, shuffle=self.shuffle, num_workers=15)
 
     def val_dataloader(self):
-        return DataLoader(self.val, batch_size=self.batch_size)
+        return DataLoader(self.val, batch_size=self.batch_size, num_workers=15)
 
     def test_dataloader(self):
         return DataLoader(self.test, batch_size=self.batch_size)

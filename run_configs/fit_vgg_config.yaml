@@ -1,7 +1,7 @@
 # lightning.pytorch==2.4.0
 seed_everything: true
 trainer:
-  accelerator: "gpu"
+  accelerator: "auto"
   precision: null
   logger:
     class_path: 'lightning.pytorch.loggers.tensorboard.TensorBoardLogger'
@@ -30,7 +30,7 @@ trainer:
 
   fast_dev_run: false
 #  max_epochs: 100
-  overfit_batches: 1
+# overfit_batches: 1
   check_val_every_n_epoch: 1
 #  limit_val_batches: 0  # set to 0 to disable validation, but overwritten when overfit_batches is used
   num_sanity_val_steps: 0
@@ -45,12 +45,12 @@ model:
     optimizer:
       class_path: 'torch.optim.AdamW'
       init_args:
-        lr: 0.01
+        lr: 0.001
     scheduler:
       class_path: 'torch.optim.lr_scheduler.ReduceLROnPlateau'
       init_args:
         mode: 'max'
-        factor: 0.5
+        factor: 0.1
         patience: 5
     scheduler_config: {monitor: 'epoch_val_loss', frequency: 1}
   dict_kwargs:
@@ -69,4 +69,4 @@ data:
   class_path: 'data_module.FashionMNISTDataModule'
   init_args:
     data_dir: './data'
-    batch_size: 64
+    batch_size: 128

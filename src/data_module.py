@@ -6,13 +6,20 @@ from torchvision.datasets import FashionMNIST, Imagenette
 from torchvision import transforms
 import lightning as L
 
+from logging_utils import get_logger
+
+logger = get_logger(__name__)
 
 class BaseDataModule(L.LightningDataModule):
-    def __init__(self, data_dir: str = "./", batch_size: int = 32, shuffle: bool=True):
+    def __init__(self,
+                 data_dir: str = "./",
+                 **kwargs):
+
         super().__init__()
+        logger.info(f"Data dir: {data_dir}, kwargs: {kwargs}")
+
         self.data_dir = data_dir
-        self.batch_size = batch_size
-        self.shuffle = shuffle
+        self.kwargs = kwargs
 
         self.train = None
         self.val = None
@@ -21,16 +28,16 @@ class BaseDataModule(L.LightningDataModule):
 
 
     def train_dataloader(self):
-        return DataLoader(self.train, batch_size=self.batch_size, shuffle=self.shuffle, num_workers=15)
+        return DataLoader(self.train, **self.kwargs)
 
     def val_dataloader(self):
-        return DataLoader(self.val, batch_size=self.batch_size, num_workers=15)
+        return DataLoader(self.val, **self.kwargs)
 
     def test_dataloader(self):
-        return DataLoader(self.test, batch_size=self.batch_size)
+        return DataLoader(self.test,  **self.kwargs)
 
     def predict_dataloader(self):
-        return DataLoader(self.predict, batch_size=self.batch_size)
+        return DataLoader(self.predict,  **self.kwargs)
 
 
 class FashionMNISTDataModule(BaseDataModule):

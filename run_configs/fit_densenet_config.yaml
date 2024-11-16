@@ -58,4 +58,8 @@ data:
   class_path: 'data_module.FashionMNISTDataModule'
   init_args:
     data_dir: './data'
+  dict_kwargs:
     batch_size: 64
+    num_workers: 4
+    pin_memory: true
+

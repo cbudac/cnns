@@ -6,6 +6,7 @@ So far, I have implemented the following backbones:
 
 The implementation is done in Pytorch, using PytorchLightning CLI and Tensorboard for logging.
 
+The environment is managed using conda, currently `pytorch-env`
 
 ### Todo:
 - enhance the data modules to allow control from config file for number of workers etc.

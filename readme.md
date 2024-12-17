@@ -9,4 +9,4 @@ The implementation is done in Pytorch, using PytorchLightning CLI and Tensorboar
 
 ### Todo:
 - enhance the data modules to allow control from config file for number of workers etc.
-- add torch metrics and calculate classification specifi metrics
+- add torch metrics and calculate classification specific metrics

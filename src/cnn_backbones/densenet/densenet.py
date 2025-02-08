@@ -131,4 +131,4 @@ class DenseNet(nn.Sequential):
 # ----------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     model = DenseNet()
-    summary(model, input_size=(1, 3, 224, 224), device='cpu', depth=3, col_names=["input_size", "output_size", "num_params"])
+    summary(model, input_size=(1, 3, 224, 224), device='cuda', depth=3, col_names=["input_size", "output_size", "num_params"])

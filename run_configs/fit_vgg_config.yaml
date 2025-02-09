@@ -8,31 +8,31 @@ trainer:
     init_args:
       save_dir: './output/vgg'
 
-#  callbacks:
-#    - class_path: ModelCheckpoint
-#      init_args:
-#        filename: "dn_epoch{epoch:02d}_loss{epoch_val_loss:.2f}"
-#        auto_insert_metric_name: false
-#        save_last: true
-#        monitor: 'epoch_val_loss'
-#        mode: 'min'
-#        verbose: true
-#    - class_path: EarlyStopping
-#      init_args:
-#        monitor: 'epoch_val_loss'
-#        mode: 'min'
-#        patience: 4
-#        check_on_train_epoch_end: false
-#        verbose: true
-#    - class_path: LearningRateMonitor
-#      init_args:
-#        logging_interval: 'epoch'
+  # callbacks:
+  #   - class_path: ModelCheckpoint
+  #     init_args:
+  #       filename: "dn_epoch{epoch:02d}_loss{epoch_val_loss:.2f}"
+  #       auto_insert_metric_name: false
+  #       save_last: true
+  #       monitor: 'val_loss_epoch'
+  #       mode: 'min'
+  #       verbose: true
+  #   - class_path: EarlyStopping
+  #     init_args:
+  #       monitor: 'val_loss_epoch'
+  #       mode: 'min'
+  #       patience: 4
+  #       check_on_train_epoch_end: false
+  #       verbose: true
+  #   - class_path: LearningRateMonitor
+  #     init_args:
+  #       logging_interval: 'epoch'
 
   fast_dev_run: false
   max_epochs: 100
   overfit_batches: 1
   check_val_every_n_epoch: 1
-#  limit_val_batches: 0  # set to 0 to disable validation, but overwritten when overfit_batches is used
+  limit_val_batches: 0  # set to 0 to disable validation, but overwritten when overfit_batches is used
   num_sanity_val_steps: 0
   log_every_n_steps: 1
   inference_mode: true
@@ -55,7 +55,7 @@ model:
     scheduler_config: {monitor: 'val_loss_epoch', frequency: 1}
   dict_kwargs:
     use_dropout: false
-    use_batch_norm: true
+    use_batch_norm: false
     config: 'A'
 
 #data:
@@ -70,6 +70,6 @@ data:
   init_args:
     data_dir: './data'
   dict_kwargs:
-    batch_size: 2
-    num_workers: 1
+    batch_size: 64
+    num_workers: 4
     pin_memory: true

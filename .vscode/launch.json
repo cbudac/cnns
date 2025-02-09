@@ -6,7 +6,7 @@
     "configurations": [
 
         {
-            "name": "Run VGG Training Script",
+            "name": "Run VGG Fit Script",
             "type": "debugpy",
             "request": "launch",
             "program": "src/cli.py",
@@ -14,6 +14,19 @@
             "args": [
                 "fit",
                 "--config","run_configs/fit_vgg_config.yaml",
+            ],
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "Run DenseNet Fit Script",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/cli.py",
+            "console": "integratedTerminal",
+            "args": [
+                "fit",
+                "--config","run_configs/fit_densenet_config.yaml",
             ],
             "cwd": "${workspaceFolder}",
             "justMyCode": false

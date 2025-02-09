@@ -1,38 +1,38 @@
 # lightning.pytorch==2.4.0
 seed_everything: true
 trainer:
-  accelerator: "gpu"
+  accelerator: "auto"
   precision: null
   logger:
     class_path: 'lightning.pytorch.loggers.tensorboard.TensorBoardLogger'
     init_args:
       save_dir: './output/densenet'
 
-  callbacks:
-    - class_path: ModelCheckpoint
-      init_args:
-        filename: "dn_epoch{epoch:02d}_loss{epoch_val_loss:.2f}"
-        auto_insert_metric_name: false
-        save_last: true
-        monitor: 'epoch_val_loss'
-        mode: 'min'
-        verbose: true
-    - class_path: EarlyStopping
-      init_args:
-        monitor: 'epoch_val_loss'
-        mode: 'min'
-        patience: 20
-        check_on_train_epoch_end: false
-        verbose: true
-    - class_path: LearningRateMonitor
-      init_args:
-        logging_interval: 'epoch'
+  # callbacks:
+  #   - class_path: ModelCheckpoint
+  #     init_args:
+  #       filename: "dn_epoch{epoch:02d}_loss{epoch_val_loss:.2f}"
+  #       auto_insert_metric_name: false
+  #       save_last: true
+  #       monitor: 'val_loss_epoch'
+  #       mode: 'min'
+  #       verbose: true
+  #   - class_path: EarlyStopping
+  #     init_args:
+  #       monitor: 'val_loss_epoch'
+  #       mode: 'min'
+  #       patience: 20
+  #       check_on_train_epoch_end: false
+  #       verbose: true
+  #   - class_path: LearningRateMonitor
+  #     init_args:
+  #       logging_interval: 'epoch'
 
   fast_dev_run: false
   max_epochs: 100
-  overfit_batches: 0.0
+  overfit_batches: 1
   check_val_every_n_epoch: 1
-  limit_val_batches: 1
+  limit_val_batches: 0  # set to 0 to disable validation
   num_sanity_val_steps: 0
   log_every_n_steps: 1
   inference_mode: true
@@ -52,7 +52,7 @@ model:
         mode: 'max'
         factor: 0.5
         patience: 5
-    scheduler_config: {monitor: 'epoch_val_loss', frequency: 1}
+    scheduler_config: {monitor: 'val_loss_epoch', frequency: 1}
 
 data:
   class_path: 'data_module.FashionMNISTDataModule'

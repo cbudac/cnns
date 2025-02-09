@@ -30,7 +30,7 @@ trainer:
 
   fast_dev_run: false
 #  max_epochs: 100
-# overfit_batches: 1
+  overfit_batches: 3
   check_val_every_n_epoch: 1
 #  limit_val_batches: 0  # set to 0 to disable validation, but overwritten when overfit_batches is used
   num_sanity_val_steps: 0
@@ -70,6 +70,6 @@ data:
   init_args:
     data_dir: './data'
   dict_kwargs:
-    batch_size: 64
+    batch_size: 8
     num_workers: 4
     pin_memory: true

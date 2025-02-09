@@ -39,7 +39,7 @@ class BaseDataModule(L.LightningDataModule):
     def predict_dataloader(self):
         return DataLoader(self.predict,  **self.kwargs)
 
-
+# ----------------------------------------------------------------------------------------------------------------------
 class FashionMNISTDataModule(BaseDataModule):
 
     def prepare_data(self) -> None:
@@ -66,7 +66,7 @@ class FashionMNISTDataModule(BaseDataModule):
         if stage == "predict":
             self.predict = FashionMNIST(self.data_dir, train=False, transform=transform)
 
-
+# ----------------------------------------------------------------------------------------------------------------------
 class ImagenetteDataModule(BaseDataModule):
 
     def prepare_data(self) -> None:

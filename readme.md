@@ -4,7 +4,7 @@ So far, I have implemented the following backbones:
 - VGG
 - DenseNet
 
-The implementation is done in Pytorch, using PytorchLightning CLI and Tensorboard for logging.
+The implementation is done in Pytorch, using PytorchLightning CLI, Torchmetrics and Tensorboard for logging.
 
 ### How to fit the model:
 ```

@@ -7,6 +7,7 @@ from logging_utils import get_logger
 
 logger = get_logger(__name__)
 
+
 class VGGConfig(StrEnum):
     A = "A"
 
@@ -84,4 +85,4 @@ if __name__ == "__main__":
     model = VGG(VGGConfig.A,
                 use_dropout=False,
                 use_batch_norm=False)
-    summary(model, input_size=(1, 1, 224, 224), device='cpu', depth=2, col_names=["input_size", "output_size", "num_params"])
+    summary(model, input_size=(1, 1, 224, 224), device='cuda', depth=2, col_names=["input_size", "output_size", "num_params"])

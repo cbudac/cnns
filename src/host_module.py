@@ -27,10 +27,9 @@ class HostModule(LightningModule, ABC):
         self.scheduler = scheduler
         self.scheduler_config = scheduler_config
 
-        self.outputs = []
-
         # the num_classes should be pickup from config/dataset
-        self.accuracy = MulticlassAccuracy(num_classes=10)
+        self.train_accuracy = MulticlassAccuracy(num_classes=10, average="micro")
+        self.val_accuracy = MulticlassAccuracy(num_classes=10, average="micro")
 
 
     def forward(self, x) -> Any:
@@ -44,12 +43,15 @@ class HostModule(LightningModule, ABC):
 
         y_hat = self.forward(x)
 
-        accuracy = self.accuracy(y_hat, y)
-        self.log(f'step_{stage}_acc', accuracy, logger=True, on_step=True, on_epoch=False)
+        if stage=="train":
+            train_accuracy = self.train_accuracy(y_hat, y)
+            self.log(f'{stage}_acc_step', train_accuracy, logger=True, on_step=True, on_epoch=False)
+        elif stage=="val":
+            val_accuracy = self.val_accuracy(y_hat, y)
+            self.log(f'{stage}_acc_step', val_accuracy, logger=True, on_step=True, on_epoch=False)
 
         loss = F.cross_entropy(y_hat, y)
-        self.outputs.append(loss)
-        self.log(f'step_{stage}_loss', loss, prog_bar=True, logger=True, on_step=True, on_epoch=False)
+        self.log(f'{stage}_loss', loss, prog_bar=True, logger=True, on_step=True, on_epoch=True)
 
         return loss
 
@@ -61,14 +63,14 @@ class HostModule(LightningModule, ABC):
 
     # ------------------------------------------------------------------------------------------------------------------
     def shared_epoch_end(self, stage) -> None:
-        loss = torch.stack(self.outputs).mean()
-        self.log(f'epoch_{stage}_loss', loss, prog_bar=True, logger=True, on_epoch=True, on_step=False)
-
-        accuracy = self.accuracy.compute()
-        self.log(f'epoch_{stage}_accuracy', accuracy, prog_bar=False, logger=True, on_epoch=True, on_step=False)
-
-        self.outputs.clear()
-        self.accuracy.reset()
+        if stage == 'train':
+            train_accuracy = self.train_accuracy.compute()
+            self.log(f'{stage}_acc_epoch', train_accuracy)
+            self.train_accuracy.reset()
+        elif stage == 'val':
+            val_accuracy = self.val_accuracy.compute()
+            self.log(f'{stage}_acc_epoch', val_accuracy)
+            self.val_accuracy.reset()
 
     def on_train_epoch_end(self) -> None:
         self.shared_epoch_end(stage = "train")

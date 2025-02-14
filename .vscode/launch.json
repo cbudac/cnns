@@ -16,7 +16,10 @@
                 "--config","run_configs/fit_vgg_config.yaml",
             ],
             "cwd": "${workspaceFolder}",
-            "justMyCode": false
+            "justMyCode": false,
+            "env": {
+                "PATH": "$PATH:$(pwd)/src"
+            }
         },
         {
             "name": "Run DenseNet Fit Script",

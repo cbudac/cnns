@@ -67,7 +67,7 @@ class HostModule(LightningModule, ABC):
     # ------------------------------------------------------------------------------------------------------------------
     def shared_epoch_end(self, loop: Loop) -> None:
         for metric in self.metrics:
-            metric: metric.on_epoch_end(loop)
+            metric.on_epoch_end(loop)
 
     def on_train_epoch_end(self) -> None:
         self.shared_epoch_end(loop = Loop.TRAIN)

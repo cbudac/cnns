@@ -74,18 +74,13 @@ class OxfordIIITPetDataModule(BaseDataModule):
         OxfordIIITPet(self.data_dir, download=True, target_types="segmentation")
 
     def setup(self, stage: str):
+        transform = transforms.Compose([transforms.ToTensor()])
+        
         if stage == Stage.FIT:
-            ox_pet_full = OxfordIIITPet(self.data_dir)
+            ox_pet_full = OxfordIIITPet(self.data_dir, transform=transform)
             self.train, self.val = random_split(
                 ox_pet_full, [0.9, 0.1], generator=torch.Generator().manual_seed(42)
             )
-
-        # Assign test dataset for use in dataloader(s)
-        if stage == Stage.TEST:
-            self.test = FashionMNIST(self.data_dir, train=False)
-
-        if stage == Stage.PREDICT:
-            self.predict = FashionMNIST(self.data_dir)
 
 
 # ----------------------------------------------------------------------------------------------------------------------

@@ -2,11 +2,12 @@ import os
 
 import torch
 from torch.utils.data import random_split, DataLoader
-from torchvision.datasets import FashionMNIST, Imagenette
+from torchvision.datasets import FashionMNIST, Imagenette, OxfordIIITPet
 from torchvision import transforms
 import lightning as L
 
 from logging_utils import get_logger
+from utils import Stage
 
 logger = get_logger(__name__)
 
@@ -53,18 +54,39 @@ class FashionMNISTDataModule(BaseDataModule):
                                         transforms.Normalize((0.1307,), (0.3081,)),
                                         transforms.Resize(size=(224, 224))])
 
-        if stage == "fit":
+        if stage == Stage.FIT:
             mnist_full = FashionMNIST(self.data_dir, train=True, transform=transform)
             self.train, self.val = random_split(
                 mnist_full, [55000, 5000], generator=torch.Generator().manual_seed(42)
             )
 
         # Assign test dataset for use in dataloader(s)
-        if stage == "test":
+        if stage == Stage.TEST:
             self.test = FashionMNIST(self.data_dir, train=False, transform=transform)
 
-        if stage == "predict":
+        if stage == Stage.PREDICT:
             self.predict = FashionMNIST(self.data_dir, train=False, transform=transform)
+
+# ----------------------------------------------------------------------------------------------------------------------
+class OxfordIIITPetDataModule(BaseDataModule):
+    def prepare_data(self) -> None:
+        # download dataset
+        OxfordIIITPet(self.data_dir, download=True, target_types="segmentation")
+
+    def setup(self, stage: str):
+        if stage == Stage.FIT:
+            ox_pet_full = OxfordIIITPet(self.data_dir)
+            self.train, self.val = random_split(
+                ox_pet_full, [0.9, 0.1], generator=torch.Generator().manual_seed(42)
+            )
+
+        # Assign test dataset for use in dataloader(s)
+        if stage == Stage.TEST:
+            self.test = FashionMNIST(self.data_dir, train=False)
+
+        if stage == Stage.PREDICT:
+            self.predict = FashionMNIST(self.data_dir)
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 class ImagenetteDataModule(BaseDataModule):
@@ -82,4 +104,7 @@ class ImagenetteDataModule(BaseDataModule):
 
 
 
-
+# ----------------------------------------------------------------------------------------------------------------------
+if __name__ == "__main__":
+    dm = OxfordIIITPetDataModule(data_dir='../data')
+    dm.prepare_data()

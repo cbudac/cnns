@@ -6,10 +6,12 @@ from lightning import LightningModule
 from lightning.pytorch.cli import OptimizerCallable, LRSchedulerCallable
 from lightning.pytorch.utilities.types import OptimizerLRScheduler, STEP_OUTPUT
 from torch.nn import functional as F
-from torchmetrics.classification import MulticlassAccuracy
 
 from cnn_backbones.densenet.densenet import DenseNet
 from cnn_backbones.vgg.vgg import VGG
+from metrics import BaseMetricsAdaptor
+from sem_seg.unet.unet import UNet
+from utils import Loop, create_instance
 
 
 class HostModule(LightningModule, ABC):
@@ -18,6 +20,7 @@ class HostModule(LightningModule, ABC):
                  optimizer: OptimizerCallable = None,
                  scheduler: Optional[LRSchedulerCallable] = None,
                  scheduler_config: Optional[dict] = None,
+                 metrics: Optional[list[dict]] = None,
                  **kwargs):
         super().__init__()
         self.save_hyperparameters()
@@ -27,56 +30,50 @@ class HostModule(LightningModule, ABC):
         self.scheduler = scheduler
         self.scheduler_config = scheduler_config
 
-        # the num_classes should be pickup from config/dataset
-        self.train_accuracy = MulticlassAccuracy(num_classes=10, average="micro")
-        self.val_accuracy = MulticlassAccuracy(num_classes=10, average="micro")
-
+        # check if metrics are configured and instantiate them
+        self.metrics: list[BaseMetricsAdaptor] = []
+        if metrics:
+            for metric in metrics:
+                metric = create_instance(metric["class_path"],self.log, **metric["init_args"])
+                self.metrics.append(metric)
 
     def forward(self, x) -> Any:
         logits = self.model(x)
         return logits
 
     # ------------------------------------------------------------------------------------------------------------------
-    def shared_step(self, batch, stage) -> STEP_OUTPUT:
+    def shared_step(self, batch, loop: Loop) -> STEP_OUTPUT:
         x = batch[0]
         y = batch[1]
 
         y_hat = self.forward(x)
 
-        if stage=="train":
-            train_accuracy = self.train_accuracy(y_hat, y)
-            self.log(f'{stage}_acc_step', train_accuracy, logger=True, on_step=True, on_epoch=False)
-        elif stage=="val":
-            val_accuracy = self.val_accuracy(y_hat, y)
-            self.log(f'{stage}_acc_step', val_accuracy, logger=True, on_step=True, on_epoch=False)
+        # invoke defined metrics
+        for metric in self.metrics:
+            metric.on_step(loop, y_hat, y)
 
+        # compute loss
         loss = F.cross_entropy(y_hat, y)
-        self.log(f'{stage}_loss', loss, prog_bar=True, logger=True, on_step=True, on_epoch=True)
+        self.log(f'{loop}_loss', loss, prog_bar=True, logger=True, on_step=True, on_epoch=True)
 
         return loss
 
     def training_step(self, batch) -> STEP_OUTPUT:
-        return self.shared_step(batch, 'train')
+        return self.shared_step(batch, Loop.TRAIN)
 
     def validation_step(self, batch) -> STEP_OUTPUT:
-        return self.shared_step(batch, "val")
+        return self.shared_step(batch, Loop.VAL)
 
     # ------------------------------------------------------------------------------------------------------------------
-    def shared_epoch_end(self, stage) -> None:
-        if stage == 'train':
-            train_accuracy = self.train_accuracy.compute()
-            self.log(f'{stage}_acc_epoch', train_accuracy)
-            self.train_accuracy.reset()
-        elif stage == 'val':
-            val_accuracy = self.val_accuracy.compute()
-            self.log(f'{stage}_acc_epoch', val_accuracy)
-            self.val_accuracy.reset()
+    def shared_epoch_end(self, loop: Loop) -> None:
+        for metric in self.metrics:
+            metric: metric.on_epoch_end(loop)
 
     def on_train_epoch_end(self) -> None:
-        self.shared_epoch_end(stage = "train")
+        self.shared_epoch_end(loop = Loop.TRAIN)
 
     def on_validation_epoch_end(self) -> None:
-        self.shared_epoch_end(stage = "val")
+        self.shared_epoch_end(loop = Loop.VAL)
 
     # ------------------------------------------------------------------------------------------------------------------
     def configure_optimizers(self) -> OptimizerLRScheduler:
@@ -100,10 +97,12 @@ class HostModule(LightningModule, ABC):
         else:
             return optimizer
 
+    # ------------------------------------------------------------------------------------------------------------------
     def create_model(self, arch: str, **kwargs) -> torch.nn.Module:
         archs = [
             VGG,
-            DenseNet
+            DenseNet,
+            UNet
         ]
         archs_dict = {a.__name__.lower(): a for a in archs}
         try:
@@ -115,3 +114,8 @@ class HostModule(LightningModule, ABC):
                 )
             )
         return model_class(**kwargs)
+
+    def on_fit_start(self) -> None:
+        # allow the metrics to gain insight about the device before fitting starts
+        for metric in self.metrics:
+            metric.on_fit_start(self.device)

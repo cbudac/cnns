@@ -6,7 +6,7 @@ trainer:
   logger:
     class_path: 'lightning.pytorch.loggers.tensorboard.TensorBoardLogger'
     init_args:
-      save_dir: './output/vgg'
+      save_dir: './output/unet'
 
   # callbacks:
   #   - class_path: ModelCheckpoint
@@ -30,7 +30,8 @@ trainer:
 
   fast_dev_run: false
   max_epochs: 100
-  overfit_batches: 1
+  overfit_batches: 1  # because wildly different image size we set batch size to 1, and we use accumulate_grad_batches to simulate larger batch sizes
+  accumulate_grad_batches: 1  # simulate larger batch sizes by setting this value to something bigger than 1
   check_val_every_n_epoch: 1
   limit_val_batches: 0  # set to 0 to disable validation, but overwritten when overfit_batches is used
   num_sanity_val_steps: 0
@@ -41,7 +42,7 @@ trainer:
 model:
   class_path: 'host_module.HostModule'
   init_args:
-    arch: 'VGG'
+    arch: 'UNet'
     optimizer:
       class_path: 'torch.optim.AdamW'
       init_args:
@@ -53,21 +54,14 @@ model:
         factor: 0.1
         patience: 5
     scheduler_config: {monitor: 'val_loss_epoch', frequency: 1}
-    metrics:
-      - class_path: 'metrics.MulticlassAccuracyAdaptor'
-        init_args:
-          num_classes: 10
-  dict_kwargs:
-    use_dropout: false
-    use_batch_norm: true
-    config: 'A'
+  dict_kwargs: # mechanism to pass additional arguments for the model
+    num_classes: 3
 
 data:
-  class_path: 'data_module.FashionMNISTDataModule'
+  class_path: 'data_module.OxfordIIITPetDataModule'
   init_args:
     data_dir: './data'
   dict_kwargs:
-    batch_size: 4
+    batch_size: 1
     num_workers: 4
-    pin_memory: true
-
+    pin_memory: false

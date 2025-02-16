@@ -74,10 +74,16 @@ class OxfordIIITPetDataModule(BaseDataModule):
         OxfordIIITPet(self.data_dir, download=True, target_types="segmentation")
 
     def setup(self, stage: str):
-        transform = transforms.Compose([transforms.ToTensor()])
+        target_transform =  transforms.Compose([transforms.PILToTensor(),
+                                                transforms.Lambda(lambda x: torch.squeeze(x)), 
+                                                transforms.Lambda(lambda x: x.to(torch.long)),
+                                                transforms.Lambda(lambda x: x - 1)])
         
         if stage == Stage.FIT:
-            ox_pet_full = OxfordIIITPet(self.data_dir, transform=transform)
+            ox_pet_full = OxfordIIITPet(self.data_dir, 
+                                        transform=transforms.ToTensor(), 
+                                        target_transform=target_transform,
+                                        target_types="segmentation")
             self.train, self.val = random_split(
                 ox_pet_full, [0.9, 0.1], generator=torch.Generator().manual_seed(42)
             )

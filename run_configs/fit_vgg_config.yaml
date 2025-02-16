@@ -21,7 +21,7 @@ trainer:
       init_args:
         monitor: 'val_loss_epoch'
         mode: 'min'
-        patience: 4
+        patience: 5
         check_on_train_epoch_end: false
         verbose: true
     - class_path: LearningRateMonitor
@@ -29,7 +29,7 @@ trainer:
         logging_interval: 'epoch'
 
   fast_dev_run: false
-  max_epochs: 10
+  max_epochs: 20
 #  overfit_batches: 1
   check_val_every_n_epoch: 1
 #  limit_val_batches: 0  # set to 0 to disable validation, but overwritten when overfit_batches is used
@@ -51,8 +51,8 @@ model:
       init_args:
         mode: 'max'
         factor: 0.1
-        patience: 5
-    scheduler_config: {monitor: 'val_loss_epoch', frequency: 1}
+        patience: 3
+    scheduler_config: {monitor: 'val_acc_epoch', frequency: 1}
     metrics:
       - class_path: 'metrics.MulticlassAccuracyAdaptor'
         init_args:

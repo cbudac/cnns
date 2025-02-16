@@ -3,6 +3,7 @@ This repo contains my implementation of several cnn backbones.
 So far, I have implemented the following backbones:
 - VGG (A)
 - DenseNet
+- UNet
 
 Main libraries: 
 - Pytorch
@@ -10,6 +11,9 @@ Main libraries:
 - Torchmetrics
 - Pytest
 - Tensorboard for logging.
+
+Training Configuration Files
+- the training configuration files are in `run_configs` folder
 
 ### How to fit the model:
 ```

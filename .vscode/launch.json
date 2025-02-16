@@ -22,6 +22,22 @@
             }
         },
         {
+            "name": "Run UNet Fit Script",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/cli.py",
+            "console": "integratedTerminal",
+            "args": [
+                "fit",
+                "--config","run_configs/fit_unet_config.yaml",
+            ],
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+            "env": {
+                "PATH": "$PATH:$(pwd)/src"
+            }
+        },
+        {
             "name": "Run DenseNet Fit Script",
             "type": "debugpy",
             "request": "launch",
@@ -32,7 +48,10 @@
                 "--config","run_configs/fit_densenet_config.yaml",
             ],
             "cwd": "${workspaceFolder}",
-            "justMyCode": false
+            "justMyCode": false,
+            "env": {
+                "PATH": "$PATH:$(pwd)/src"
+            }
         }
     ]
 }
